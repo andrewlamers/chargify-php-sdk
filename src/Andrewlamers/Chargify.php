@@ -26,10 +26,17 @@ class Chargify
     protected $_segments = [];
     protected $_has_error = false;
     protected $_data = false;
+    protected $_fillable = [];
 
     public function __construct($config)
     {
         $this->_config = $config;
+
+        if(isset($config['fillable']))
+        {
+            $this->_fillable = $config['fillable'];
+        }
+
         $this->_hostname = $config['hostname'];
         $this->_apiKey = $config['api_key'];
         $this->_sharedKey = $config['shared_key'];
@@ -121,7 +128,7 @@ class Chargify
 
         if(!class_exists("AndrewLamers\\Chargify\\".$this->_collection_name))
         {
-            eval("namespace Andrewlamers\\Chargify; class " . $this->_collection_name . " extends \\Illuminate\\Support\\Fluent {}");
+            eval("namespace Andrewlamers\\Chargify; class " . $this->_collection_name . " extends \\Andrewlamers\\Chargify\\Fluent {}");
         }
 
         $this->_collection_name = "Andrewlamers\\Chargify\\".$this->_collection_name;
@@ -147,7 +154,10 @@ class Chargify
         }
         else if(isset($body->{$this->_api_name}))
         {
-            return new $this->_collection_name((object)$body->{$this->_api_name});
+            $class = new $this->_collection_name((object)$body->{$this->_api_name});
+            $class->setErrors($this->_has_error);
+
+            return $class;
         }
         else if(is_array($body))
         {
@@ -165,7 +175,6 @@ class Chargify
         }
         else
         {
-            $this->_has_error = true;
             $return = ['errors' => [$response->getReasonPhrase()],
                        'code' => $response->getStatusCode(),
                        'request_url' => $response->getEffectiveUrl()];
@@ -196,8 +205,11 @@ class Chargify
         try
         {
             $response = $this->http->send($request);
+            $this->_has_error = false;
+
         } catch (RequestException $e)
         {
+
             if($e->hasResponse())
             {
                 $response = $e->getResponse();
@@ -206,6 +218,8 @@ class Chargify
             {
                 $response = false;
             }
+
+            $this->_has_error = true;
         }
 
         $this->reset();
@@ -216,12 +230,26 @@ class Chargify
     protected function prepareBody($body)
     {
         $return = [];
+
         if(!isset($body->{$this->_api_name}))
         {
-            $return[$this->_api_name] = $body;
+            $body[$this->_api_name] = $body;
         }
 
-        return Stream::factory(json_encode($return));
+
+        if(isset($this->_fillable[$this->_api_name]))
+        {
+            foreach($body[$this->_api_name] as $key => $item)
+            {
+                if(in_array($key, $this->_fillable[$this->_api_name]))
+                {
+                    $return[$key] = $item;
+                }
+            }
+        }
+
+
+        return Stream::factory(json_encode([$this->_api_name => $return]));
     }
 
     public function validateWebhook()
