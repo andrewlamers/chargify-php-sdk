@@ -90,6 +90,7 @@ class Chargify
     public function reset()
     {
         $this->_call_url = '';
+        $this->_segments = [];
     }
 
     public function setParam($name, $value)
@@ -115,7 +116,12 @@ class Chargify
     {
         $this->_api_name = Pluralizer::singular($name);
         $this->_collection_name = Str::studly(Str::singular(Str::slug($this->_api_name, " ")));
-        eval("namespace Andrewlamers\\Chargify; class ".$this->_collection_name." extends \\Illuminate\\Support\\Fluent {}");
+
+        if(!class_exists("AndrewLamers\\Chargify\\".$this->_collection_name))
+        {
+            eval("namespace Andrewlamers\\Chargify; class " . $this->_collection_name . " extends \\Illuminate\\Support\\Fluent {}");
+        }
+
         $this->_collection_name = "Andrewlamers\\Chargify\\".$this->_collection_name;
     }
 
