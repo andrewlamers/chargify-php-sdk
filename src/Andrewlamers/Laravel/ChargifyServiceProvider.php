@@ -19,11 +19,7 @@ class ChargifyServiceProvider extends ServiceProvider {
      */
     public function boot()
     {
-        $this->publishes(array(
-            __DIR__.'/chargify.php' => config_path('chargify.php')
-        ), 'config');
-
-        $this->mergeConfigFrom(__DIR__.'/chargify.php', 'chargify');
+        $this->package('andrewlamers/chargify-laravel');
     }
 
     /**
@@ -33,9 +29,10 @@ class ChargifyServiceProvider extends ServiceProvider {
      */
     public function register()
     {
-        $this->app->bind('chargify', function ($app) {
 
-            $chargify = new Chargify(config('chargify'));
+        $this->app->bind('chargify', function () {
+
+            $chargify = new Chargify(Config::get('chargify-laravel::config'));
 
             return $chargify;
 
