@@ -1,5 +1,5 @@
 <?php
-namespace Andrewlamers\Chargify;
+namespace Andrewlamers\Chargify\Laravel;
 use Illuminate\Support\Facades\Facade;
 class ChargifyFacade extends Facade
 {

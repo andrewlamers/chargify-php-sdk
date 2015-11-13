@@ -1,5 +1,5 @@
 <?php
-namespace Andrewlamers\Chargify;
+namespace Andrewlamers\Chargify\Laravel;
 use Illuminate\Support\ServiceProvider;
 use Config;
 
