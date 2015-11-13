@@ -2,6 +2,7 @@
 namespace Andrewlamers\Chargify\Laravel;
 use Illuminate\Support\ServiceProvider;
 use Config;
+use Andrewlamers\Chargify\Chargify;
 
 class ChargifyServiceProvider extends ServiceProvider {
 
