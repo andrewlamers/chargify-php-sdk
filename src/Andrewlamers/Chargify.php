@@ -23,6 +23,7 @@ class Chargify
     protected $_api_name = false;
     protected $_collection_name;
     protected $_class;
+    protected $_segments = [];
 
     public function __construct($config)
     {
@@ -48,7 +49,10 @@ class Chargify
     {
         $this->setApiName($name);
 
-        $this->_call_url .= $name . "/" . $arguments[0];
+        $this->_segments[] = $name;
+
+        if(isset($arguments[0]))
+            $this->_segments[] = $arguments[0];
 
         return $this;
     }
@@ -58,7 +62,7 @@ class Chargify
 
         $this->setApiName($name);
 
-        $this->_call_url .= "/" . $name;
+        $this->_segments[] = $name;
 
         return $this;
     }
@@ -109,13 +113,10 @@ class Chargify
 
     public function setApiName($name)
     {
-        if(!$this->_api_name)
-        {
-            $this->_api_name = Pluralizer::singular($name);
-            $this->_collection_name = Str::studly(Str::singular(Str::slug($this->_api_name, " ")));
-            eval("namespace Andrewlamers\\Chargify; class ".$this->_collection_name." extends \\Illuminate\\Support\\Fluent {}");
-            $this->_collection_name = "Andrewlamers\\Chargify\\".$this->_collection_name;
-        }
+        $this->_api_name = Pluralizer::singular($name);
+        $this->_collection_name = Str::studly(Str::singular(Str::slug($this->_api_name, " ")));
+        eval("namespace Andrewlamers\\Chargify; class ".$this->_collection_name." extends \\Illuminate\\Support\\Fluent {}");
+        $this->_collection_name = "Andrewlamers\\Chargify\\".$this->_collection_name;
     }
 
     protected function parseResponse($response)
@@ -166,7 +167,7 @@ class Chargify
 
     protected function request($method, $params = [], $body = null)
     {
-        $path = $this->_call_url . "." . $this->_format;
+        $path = implode("/", $this->_segments). "." . $this->_format;
         $params = array_merge($params, $this->_params);
 
         $request = $this->http->createRequest($method, $path);
