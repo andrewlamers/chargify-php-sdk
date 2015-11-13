@@ -4,7 +4,7 @@ namespace Andrewlamers\Chargify;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Stream\Stream;
-use Illuminate\Support\Collection;
+use Andrewlamers\Chargify\Collection;
 use Illuminate\Support\Pluralizer;
 use Illuminate\Support\Str;
 
@@ -24,6 +24,8 @@ class Chargify
     protected $_collection_name;
     protected $_class;
     protected $_segments = [];
+    protected $_has_error = false;
+    protected $_data = false;
 
     public function __construct($config)
     {
@@ -163,12 +165,17 @@ class Chargify
         }
         else
         {
-            return ['errors' => [$response->getReasonPhrase()],
-                    'code' => $response->getStatusCode(),
-                    'request_url' => $response->getEffectiveUrl()];
+            $this->_has_error = true;
+            $return = ['errors' => [$response->getReasonPhrase()],
+                       'code' => $response->getStatusCode(),
+                       'request_url' => $response->getEffectiveUrl()];
         }
 
-        return new Collection($return);
+        $this->_data = $return;
+
+        $c = new Collection($this->_data);
+        $c->setErrors($this->_has_error);
+        return $c;
     }
 
     protected function request($method, $params = [], $body = null)
