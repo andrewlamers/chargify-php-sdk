@@ -221,7 +221,7 @@ class Chargify
     {
         try
         {
-            return $_SERVER['HTTP_X-Chargify-Webhook-Signature-Hmac-Sha-256'] === hash_hmac('sha256', file_get_contents('php://input'), $this->_sharedKey);
+            return $_SERVER['HTTP_X_CHARGIFY_WEBHOOK_SIGNATURE_HMAC_SHA_256'] === hash_hmac('sha256', file_get_contents('php://input'), $this->_sharedKey);
         }
         catch (\Exception $e)
         {
