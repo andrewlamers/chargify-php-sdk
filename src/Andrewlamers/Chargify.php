@@ -54,28 +54,6 @@ class Chargify
         ]);
     }
 
-    public function __call($name, $arguments)
-    {
-        $this->setApiName($name);
-
-        $this->_segments[] = $name;
-
-        if(isset($arguments[0]))
-            $this->_segments[] = $arguments[0];
-
-        return $this;
-    }
-
-    public function __get($name)
-    {
-
-        $this->setApiName($name);
-
-        $this->_segments[] = $name;
-
-        return $this;
-    }
-
     public function get()
     {
         return $this->request('GET');
@@ -262,5 +240,27 @@ class Chargify
         {
             return FALSE;
         }
+    }
+
+    public function __call($name, $arguments)
+    {
+        $this->setApiName($name);
+
+        $this->_segments[] = $name;
+
+        if(isset($arguments[0]))
+            $this->_segments[] = $arguments[0];
+
+        return $this;
+    }
+
+    public function __get($name)
+    {
+
+        $this->setApiName($name);
+
+        $this->_segments[] = $name;
+
+        return $this;
     }
 }
