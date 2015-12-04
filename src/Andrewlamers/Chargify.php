@@ -59,13 +59,23 @@ class Chargify
         return $this->request('GET');
     }
 
-    public function create($data = null)
+    public function create($data = null, $api_name = false)
     {
+        if($api_name)
+        {
+            $this->setApiName($api_name);
+        }
+
         return $this->request('POST', [], $data);
     }
 
-    public function update($data)
+    public function update($data, $api_name = false)
     {
+        if($api_name)
+        {
+            $this->setApiName($api_name);
+        }
+
         return $this->request('PUT', [], $data);
     }
 
