@@ -88,6 +88,7 @@ class Chargify
     {
         $this->_call_url = '';
         $this->_segments = [];
+        $this->_params = [];
     }
 
     public function setParam($name, $value)
@@ -126,9 +127,8 @@ class Chargify
     {
         $return = [];
 
-        $body = trim((string)$response->getBody());
-
         try {
+            $body = trim((string)$response->getBody());
             $body = json_decode($body);
         }
         catch(\Exception $e)
@@ -151,7 +151,7 @@ class Chargify
         {
             foreach($body as $key => $item)
             {
-                if($item->{$this->_api_name})
+                if(isset($item->{$this->_api_name}))
                 {
                     $return[] = new $this->_collection_name((object)$item->{$this->_api_name});
                 }
@@ -159,6 +159,16 @@ class Chargify
                 {
                     $return[] = new $this->_collection_name((object)$item);
                 }
+            }
+        }
+        else if(is_object($body))
+        {
+            foreach($body as $item)
+            {
+                $class = new $this->_collection_name((object)$item);
+                $class->setErrors($this->_has_error);
+
+                return $class;
             }
         }
         else
@@ -235,7 +245,6 @@ class Chargify
                 }
             }
         }
-
 
         return Stream::factory(json_encode([$this->_api_name => $return]));
     }
