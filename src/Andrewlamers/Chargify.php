@@ -65,13 +65,23 @@ class Chargify
         return $this->request('GET');
     }
 
-    public function create($data = null)
+    public function create($data = null, $api_name = false)
     {
+        if($api_name)
+        {
+            $this->setApiName($api_name);
+        }
+
         return $this->request('POST', [], $data);
     }
 
-    public function update($data)
+    public function update($data, $api_name = false)
     {
+        if($api_name)
+        {
+            $this->setApiName($api_name);
+        }
+
         return $this->request('PUT', [], $data);
     }
 
@@ -84,6 +94,7 @@ class Chargify
     {
         $this->_call_url = '';
         $this->_segments = [];
+        $this->_params = [];
     }
 
     public function setParam($name, $value)
@@ -122,9 +133,8 @@ class Chargify
     {
         $return = [];
 
-        $body = trim((string)$response->getBody());
-
         try {
+            $body = trim((string)$response->getBody());
             $body = json_decode($body);
         }
         catch(\Exception $e)
@@ -147,7 +157,7 @@ class Chargify
         {
             foreach($body as $key => $item)
             {
-                if($item->{$this->_api_name})
+                if(isset($item->{$this->_api_name}))
                 {
                     $return[] = new $this->_collection_name((object)$item->{$this->_api_name});
                 }
@@ -155,6 +165,16 @@ class Chargify
                 {
                     $return[] = new $this->_collection_name((object)$item);
                 }
+            }
+        }
+        else if(is_object($body))
+        {
+            foreach($body as $item)
+            {
+                $class = new $this->_collection_name((object)$item);
+                $class->setErrors($this->_has_error);
+
+                return $class;
             }
         }
         else
@@ -231,7 +251,6 @@ class Chargify
                 }
             }
         }
-
 
         return Stream::factory(json_encode([$this->_api_name => $return]));
     }
