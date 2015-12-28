@@ -49,6 +49,12 @@ class Chargify
                 'auth'            => [$this->_apiKey, $this->_password],
                 'headers'         => [
                     'Content-Type' => 'application/json'
+                ],
+                'config' => [
+                    'curl' => [
+                        //Force tls 1.2 for upcoming requirement in PCI Compliance
+                        CURLOPT_SSLVERSION => 6,
+                    ]
                 ]
             ]
         ]);
