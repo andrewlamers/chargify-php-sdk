@@ -17,7 +17,7 @@
   ],
   "require": {
     "php": ">=5.3.3",
-    "guzzlehttp/guzzle": "~5",
+    "guzzlehttp/guzzle": "~6",
     "illuminate/support": "~5|~4"
   },
   "require-dev": {
@@ -25,7 +25,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Andrewlamers\\Chargify\\": "src/Andrewlamers"
+      "Andrewlamers\\Chargify\\": "src/Andrewlamers/Chargify"
     }
   },
   "minimum-stability": "dev"
